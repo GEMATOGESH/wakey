@@ -3,6 +3,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
+using Vintagestory.GameContent.Mechanics;
 
 
 namespace WakeyWakeyCoalition
@@ -26,7 +27,7 @@ namespace WakeyWakeyCoalition
 
         public void PlayerJoin(IServerPlayer byPlayer)
         {
-            server_api.BroadcastMessageToAllGroups("[Coalition] ОООООООО, " + byPlayer.PlayerName + " ЗАШЕЛ", EnumChatType.Notification);
+            server_api.BroadcastMessageToAllGroups("ОООООООО, " + byPlayer.PlayerName + " ЗАШЕЛ", EnumChatType.Notification);
         }
 
         [HarmonyPostfix]
@@ -38,7 +39,7 @@ namespace WakeyWakeyCoalition
                 var players = server_api.World.AllOnlinePlayers.ToList();
                 int sleeping = players.Where(p => p.Entity?.MountedOn is BlockEntityBed).Count();
 
-                server_api.BroadcastMessageToAllGroups("[Coalition] " + (__instance as EntityPlayer)?.Player.PlayerName + " ложится спать. (" + 
+                server_api.BroadcastMessageToAllGroups((__instance as EntityPlayer)?.Player.PlayerName + " ложится спать. (" + 
                     sleeping.ToString() + "/" + players.Count() + ")", EnumChatType.Notification);
             }
         }
@@ -64,7 +65,7 @@ namespace WakeyWakeyCoalition
                 var players = server_api.World.AllOnlinePlayers.ToList();
                 int sleeping = players.Where(p => p.Entity?.MountedOn is BlockEntityBed).Count();
 
-                server_api.BroadcastMessageToAllGroups("[Coalition] " + (__instance as EntityPlayer)?.Player.PlayerName + " встал с кровати. (" +
+                server_api.BroadcastMessageToAllGroups((__instance as EntityPlayer)?.Player.PlayerName + " встал с кровати. (" +
                     sleeping.ToString() + "/" + players.Count() + ")", EnumChatType.Notification);
             }
         }
@@ -89,8 +90,40 @@ namespace WakeyWakeyCoalition
 
             if (state != __instance.MountedBy?.GetBehavior("tiredness") is not EntityBehaviorTiredness entityBehaviorTiredness)
             {
-                server_api.Logger.Event("[Coalition] Wakey " + player.PlayerUID);
-                server_api.SendMessage(player.Player, GlobalConstants.GeneralChatGroup, "[Coalition] ПРОСНУЛИСЬ))))))УЛЫБНУЛИСЬ)00)))0", EnumChatType.OthersMessage);
+                // server_api.Logger.Event("[Coalition] Wakey " + player.PlayerUID);
+                server_api.SendMessage(player.Player, GlobalConstants.GeneralChatGroup, "ПРОСНУЛИСЬ))))))УЛЫБНУЛИСЬ)00)))0", EnumChatType.OthersMessage);
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(EntityPlayer), "Die")]
+        public static void PreDie(EntityPlayer __instance, ref object[] __state, EnumDespawnReason reason = EnumDespawnReason.Death, DamageSource damageSourceForDeath = null)
+        {
+            if (damageSourceForDeath != null && damageSourceForDeath.SourceEntity != null)
+            {
+                if (reason == EnumDespawnReason.Death && damageSourceForDeath.SourceEntity.GetName().ToLower().Contains("bear"))
+                {
+                    server_api.BroadcastMessageToAllGroups(__instance.Player.PlayerName + ", скажи подвал:", EnumChatType.Notification);
+                }
+
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(Lang), "GetL")]
+        public static void PreGet(ref object[] __state, ref string __result, string key)
+        {
+            var bears = new List<string>() { "deathmsg-bearmaleblack-1deathmsg-bearmaleblack-1", "deathmsg-bearmaleblack-1", "deathmsg-bearmaleblack-2", "deathmsg-bearmaleblack-3", 
+                "deathmsg-bearmalebrown-1", "deathmsg-bearmalebrown-2", "deathmsg-bearmalebrown-3", "deathmsg-bearmalepolar-1", "deathmsg-bearmalepolar-2", "deathmsg-bearmalepolar-3", 
+                "deathmsg-bearmaleblack-1", "deathmsg-bearmaleblack-2", "deathmsg-bearmaleblack-3", "deathmsg-bearmalebrown-1", "deathmsg-bearmalebrown-2", "deathmsg-bearmalebrown-3", 
+                "deathmsg-bearmalepolar-1", "deathmsg-bearmalepolar-2", "deathmsg-bearmalepolar-3", "deathmsg-bearfemaleblack-1", "deathmsg-bearfemaleblack-2", "deathmsg-bearfemaleblack-3",
+                "deathmsg-bearfemalebrown-1", "deathmsg-bearfemalebrown-2", "deathmsg-bearfemalebrown-3", "deathmsg-bearfemalepolar-1", "deathmsg-bearfemalepolar-2", 
+                "deathmsg-bearfemalepolar-3", "deathmsg-bearfemaleblack-1", "deathmsg-bearfemaleblack-2", "deathmsg-bearfemaleblack-3", "deathmsg-bearfemalebrown-1",
+                "deathmsg-bearfemalebrown-2", "deathmsg-bearfemalebrown-3", "deathmsg-bearfemalepolar-1", "deathmsg-bearfemalepolar-2", "deathmsg-bearfemalepolar-3" };
+
+            if (bears.Contains(key))
+            {
+                __result += "\nТебя медведь поцеловал.";
             }
         }
     }
