@@ -3,7 +3,6 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 using Vintagestory.GameContent;
-using Vintagestory.GameContent.Mechanics;
 
 
 namespace WakeyWakeyCoalition
@@ -11,6 +10,7 @@ namespace WakeyWakeyCoalition
     [HarmonyPatch]
     public class WakeyWakeyCoalitionMod : ModSystem
     {
+        static ICoreAPI api;
         static ICoreServerAPI server_api;
 
         static Harmony harmony;
@@ -23,6 +23,17 @@ namespace WakeyWakeyCoalition
 
             harmony = new Harmony("Coaliton.Wakey");
             harmony.PatchAll();
+        }
+
+        public override void Start(ICoreAPI api_)
+        {
+            api = api_;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            harmony.UnpatchAll();
         }
 
         public void PlayerJoin(IServerPlayer byPlayer)
