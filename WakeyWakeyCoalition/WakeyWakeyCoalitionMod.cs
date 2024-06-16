@@ -2,6 +2,7 @@
 using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
+using Vintagestory.Common;
 using Vintagestory.GameContent;
 
 
@@ -17,16 +18,22 @@ namespace WakeyWakeyCoalition
 
         public override void StartServerSide(ICoreServerAPI api)
         {
+            base.Start(api);
+
             server_api = api;
 
             server_api.Event.PlayerJoin += PlayerJoin;
 
-            harmony = new Harmony("Coaliton.Wakey");
+            harmony = new Harmony("Coaliton.Solyanka");
             harmony.PatchAll();
+
+            server_api.Event.RegisterGameTickListener(Canteen, 10000);
         }
 
         public override void Start(ICoreAPI api_)
         {
+            base.Start(api_);
+
             api = api_;
         }
 
@@ -136,6 +143,11 @@ namespace WakeyWakeyCoalition
             {
                 __result += "\nТебя медведь поцеловал.";
             }
+        }
+
+        public void Canteen(float dt)
+        {
+            server_api.BroadcastMessageToAllGroups("А вы не забыли попить водички из своей верной фляжки Убежища 13?", EnumChatType.Notification);
         }
     }
 }
