@@ -1,3 +1,4 @@
+import os
 from dotenv import dotenv_values
 from zipfile import ZipFile
 
@@ -14,6 +15,15 @@ def main():
     
     with ZipFile(mod_folder + "\\" + env["project_name"] + ".zip", 'w') as zip:
         for filename in files:
-            zip.write(path + "\\" + filename, filename)
-    
+            a = filename.find(".")
+            if a != -1:
+                zip.write(path + "\\" + filename, filename)
+            else:
+                for subdir, dirs, files in os.walk(path + "\\" + filename):
+                    for file in files:
+                        srcpath = os.path.join(subdir, file)
+                        dstpath_in_zip = os.path.relpath(srcpath, start=path)
+                        with open(srcpath, 'rb') as infile:
+                            zip.writestr(dstpath_in_zip, infile.read())
+
 main()
