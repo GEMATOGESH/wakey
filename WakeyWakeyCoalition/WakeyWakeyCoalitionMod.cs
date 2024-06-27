@@ -76,6 +76,9 @@ namespace WakeyWakeyCoalition
             base.Start(api_);
 
             api = api_;
+
+            api.RegisterBlockEntityClass("EntityCustomFirepit", typeof(EntityCustomFirepit));
+            api.RegisterBlockClass("BlockCustomFirepit", typeof(BlockCustomFirepit));
         }
 
         public override void Dispose()
