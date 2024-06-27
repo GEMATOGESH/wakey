@@ -1,0 +1,13 @@
+{
+    "type": "code",
+    "modid": "wakeywakey",
+    "name": "WakeyWakey",
+    "authors": [
+        "Bonn"
+    ],
+    "description": "Sends server message on night skip",
+    "version": "1.19.8",
+    "dependencies": {
+        "game": ""
+    }
+}

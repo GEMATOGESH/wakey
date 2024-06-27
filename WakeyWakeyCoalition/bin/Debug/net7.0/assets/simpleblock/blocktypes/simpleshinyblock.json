@@ -1,0 +1,16 @@
+{
+	"code": "customfirepit",
+	"class": "BlockCustomFirepit",
+	"entityClass": "EntityCustomFirepit",
+	"creativeinventory": { "general": [ "*" ] },
+	"blockmaterial": "Stone",
+	"drawtype": "Cube",
+	"textures": {
+		"all": { "base": "block/shinygoldtexture" }
+	},
+	"resistance": 3.5,
+	"sounds": {
+		"place": "game:block/anvil",
+		"walk": "game:walk/stone"
+	}
+}
