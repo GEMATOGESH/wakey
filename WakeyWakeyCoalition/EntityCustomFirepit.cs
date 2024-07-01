@@ -18,7 +18,6 @@ namespace WakeyWakeyCoalition
     {
         internal InventorySmelting inventory;
 
-
         // Temperature before the half second tick
         public float prevFurnaceTemperature = 20;
 
@@ -45,14 +44,12 @@ namespace WakeyWakeyCoalition
 
         public double extinguishedTotalHours;
 
-
         GuiDialogBlockEntityFirepit clientDialog;
         bool clientSidePrevBurning;
 
         FirepitContentsRenderer renderer;
 
         bool shouldRedraw;
-
 
         #region Config
 
@@ -68,7 +65,6 @@ namespace WakeyWakeyCoalition
         {
             get { return 1f; }
         }
-
 
         // Resting temperature
         public virtual int enviromentTemperature()
@@ -99,14 +95,11 @@ namespace WakeyWakeyCoalition
 
         #endregion
 
-
         public EntityCustomFirepit()
         {
             inventory = new InventorySmelting(null, null);
             inventory.SlotModified += OnSlotModifid;
         }
-
-
 
         public override void Initialize(ICoreAPI api)
         {
@@ -125,11 +118,7 @@ namespace WakeyWakeyCoalition
 
                 UpdateRenderer();
             }
-
-            wsys = api.ModLoader.GetModSystem<WeatherSystemBase>();
         }
-
-
 
         private void OnSlotModifid(int slotid)
         {
@@ -147,14 +136,12 @@ namespace WakeyWakeyCoalition
             Api.World.BlockAccessor.GetChunkAtBlockPos(Pos)?.MarkModified();
         }
 
-
         public bool IsSmoldering => canIgniteFuel;
 
         public bool IsBurning
         {
             get { return this.fuelBurnTime > 0; }
         }
-
 
         public int getInventoryStackLimit()
         {
@@ -170,52 +157,7 @@ namespace WakeyWakeyCoalition
             }
 
             prevFurnaceTemperature = furnaceTemperature;
-
-            if (shouldExtinguishFromRainFall(out float rainLevel))
-            {
-                Api.World.PlaySoundAt(new AssetLocation("sounds/effect/extinguish"), Pos.X + 0.5, Pos.Y, Pos.Z + 0.5, null, false, 16);
-
-                fuelBurnTime -= (float)rainLevel / 10f;
-
-                if (Api.World.Rand.NextDouble() < rainLevel / 5f || fuelBurnTime <= 0)
-                {
-                    setBlockState("cold");
-                    extinguishedTotalHours = -99;
-                    canIgniteFuel = false;
-                    fuelBurnTime = 0;
-                    maxFuelBurnTime = 0;
-                }
-
-                MarkDirty(true);
-            }
         }
-
-
-
-        WeatherSystemBase wsys;
-        Vec3d tmpPos = new Vec3d();
-
-
-        public bool shouldExtinguishFromRainFall(out float rainLevel)
-        {
-            rainLevel = 0;
-            if (Api.Side == EnumAppSide.Server && IsBurning && Api.World.Rand.NextDouble() > 0.5)
-            {
-                if (Api.World.BlockAccessor.GetRainMapHeightAt(Pos.X, Pos.Z) <= Pos.Y)   // It's more efficient to do this quick check before GetPrecipitation
-                {
-                    // Die on rainfall
-                    tmpPos.Set(Pos.X + 0.5, Pos.Y + 0.5, Pos.Z + 0.5);
-                    rainLevel = wsys.GetPrecipitation(tmpPos);
-                    if (rainLevel > 0.04 && Api.World.Rand.NextDouble() < rainLevel * 5)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
 
         public float emptyFirepitBurnTimeMulBonus = 4f;
 
@@ -300,7 +242,6 @@ namespace WakeyWakeyCoalition
 
         }
 
-
         public EnumIgniteState GetIgnitableState(float secondsIgniting)
         {
             if (fuelSlot.Empty) return EnumIgniteState.NotIgnitablePreventDefault;
@@ -308,9 +249,6 @@ namespace WakeyWakeyCoalition
 
             return secondsIgniting > 3 ? EnumIgniteState.IgniteNow : EnumIgniteState.Ignitable;
         }
-
-
-
 
         public float changeTemperature(float fromTemp, float toTemp, float dt)
         {
@@ -337,12 +275,6 @@ namespace WakeyWakeyCoalition
             return fromTemp + dt;
         }
 
-
-
-
-
-
-
         private bool canSmelt()
         {
             CombustibleProperties fuelCopts = fuelCombustibleOpts;
@@ -356,8 +288,6 @@ namespace WakeyWakeyCoalition
                     && fuelCopts.BurnTemperature * HeatModifier > 0
             ;
         }
-
-
 
         public void heatInput(float dt)
         {
@@ -397,8 +327,6 @@ namespace WakeyWakeyCoalition
             }
         }
 
-
-
         public void heatOutput(float dt)
         {
             float oldTemp = OutputStackTemp;
@@ -419,11 +347,6 @@ namespace WakeyWakeyCoalition
                 }
             }
         }
-
-
-
-
-
 
         public float InputStackTemp
         {
@@ -448,7 +371,6 @@ namespace WakeyWakeyCoalition
                 SetTemp(outputStack, value);
             }
         }
-
 
         float GetTemp(ItemStack stack)
         {
@@ -495,9 +417,6 @@ namespace WakeyWakeyCoalition
             }
         }
 
-
-
-
         public void igniteFuel()
         {
             igniteWithFuel(fuelStack);
@@ -510,8 +429,6 @@ namespace WakeyWakeyCoalition
             }
         }
 
-
-
         public void igniteWithFuel(IItemStack stack)
         {
             CombustibleProperties fuelCopts = stack.Collectible.CombustibleProps;
@@ -523,9 +440,6 @@ namespace WakeyWakeyCoalition
             MarkDirty(true);
         }
 
-
-
-
         public void setBlockState(string state)
         {
             AssetLocation loc = Block.CodeWithVariant("burnstate", state);
@@ -535,8 +449,6 @@ namespace WakeyWakeyCoalition
             Api.World.BlockAccessor.ExchangeBlock(block.Id, Pos);
             this.Block = block;
         }
-
-
 
         public bool canHeatInput()
         {
@@ -564,7 +476,6 @@ namespace WakeyWakeyCoalition
             ;
         }
 
-
         public void smeltItems()
         {
             inputStack.Collectible.DoSmelt(Api.World, inventory, inputSlot, outputSlot);
@@ -574,7 +485,6 @@ namespace WakeyWakeyCoalition
             inputSlot.MarkDirty();
         }
 
-
         #region Events
 
         public override bool OnPlayerRightClick(IPlayer byPlayer, BlockSelection blockSel)
@@ -583,7 +493,8 @@ namespace WakeyWakeyCoalition
 
             if (Api.Side == EnumAppSide.Client)
             {
-                toggleInventoryDialogClient(byPlayer, () => {
+                toggleInventoryDialogClient(byPlayer, () =>
+                {
                     SyncedTreeAttribute dtree = new SyncedTreeAttribute();
                     SetDialogValues(dtree);
                     clientDialog = new GuiDialogBlockEntityFirepit(DialogTitle, Inventory, Pos, dtree, Api as ICoreClientAPI);
@@ -593,9 +504,6 @@ namespace WakeyWakeyCoalition
 
             return true;
         }
-
-
-
 
         public override void OnReceivedClientPacket(IPlayer player, int packetid, byte[] data)
         {
@@ -612,9 +520,6 @@ namespace WakeyWakeyCoalition
                 invDialog = null;
             }
         }
-
-
-
 
         public override void FromTreeAttributes(ITreeAttribute tree, IWorldAccessor worldForResolving)
         {
@@ -652,7 +557,6 @@ namespace WakeyWakeyCoalition
                 shouldRedraw = false;
             }
         }
-
 
         void UpdateRenderer()
         {
@@ -695,7 +599,6 @@ namespace WakeyWakeyCoalition
             renderer.SetContents(null, null);
         }
 
-
         void SetDialogValues(ITreeAttribute dialogTree)
         {
             dialogTree.SetFloat("furnaceTemperature", furnaceTemperature);
@@ -722,9 +625,6 @@ namespace WakeyWakeyCoalition
             dialogTree.SetInt("quantityCookingSlots", inventory.CookingSlots.Length);
         }
 
-
-
-
         public override void ToTreeAttributes(ITreeAttribute tree)
         {
             base.ToTreeAttributes(tree);
@@ -741,9 +641,6 @@ namespace WakeyWakeyCoalition
             tree.SetBool("canIgniteFuel", canIgniteFuel);
             tree.SetFloat("cachedFuel", cachedFuel);
         }
-
-
-
 
         public override void OnBlockRemoved()
         {
@@ -765,12 +662,9 @@ namespace WakeyWakeyCoalition
             base.OnBlockBroken();
         }
 
-
-
         #endregion
 
         #region Helper getters
-
 
         public ItemSlot fuelSlot
         {
@@ -824,7 +718,6 @@ namespace WakeyWakeyCoalition
         }
 
         #endregion
-
 
         public override void OnStoreCollectibleMappings(Dictionary<int, AssetLocation> blockIdMapping, Dictionary<int, AssetLocation> itemIdMapping)
         {
@@ -980,7 +873,6 @@ namespace WakeyWakeyCoalition
             return null;
         }
 
-
         public MeshData getOrCreateMesh(string burnstate, string contentstate)
         {
             //Dictionary<string, MeshData> Meshes = ObjectCacheUtil.GetOrCreate(Api, "firepit-meshes", () => new Dictionary<string, MeshData>());
@@ -1002,7 +894,6 @@ namespace WakeyWakeyCoalition
 
             return null;
         }
-
 
         public float GetHeatStrength(IWorldAccessor world, BlockPos heatSourcePos, BlockPos heatReceiverPos)
         {
